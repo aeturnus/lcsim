@@ -1,0 +1,3 @@
+Plugins:
+Is a JAR file containing:
+classes, directories 

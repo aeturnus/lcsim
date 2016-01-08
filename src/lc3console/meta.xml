@@ -1,0 +1,15 @@
+<package type="device">
+    <name>LC3 Console</name>
+    <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
+    <version>1.0</version>
+    <classpath>lc3console.Console</classpath>
+    <description>Standard LC3 console, emulating a character-cell terminal, much like a VT-100. Includes keyboard.</description>
+    <!-- ioRegister and interruptVector elements are only for devices -->
+    <device>
+        <io_register>0xFE00</io_register>
+        <io_register>0xFE02</io_register>
+        <io_register>0xFE04</io_register>
+        <io_register>0xFE06</io_register>
+        <interrupt_vector>0x80</interrupt_vector>
+    </device>
+</package>

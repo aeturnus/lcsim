@@ -1,0 +1,11 @@
+<package type="codeloader">
+    <name>LC3 .obj loader</name>
+    <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
+    <version>1.0</version>
+    <classpath>lc3objloader.ObjLoader</classpath>
+    <description>Standard LC3 .obj loader.</description>
+    <!-- Codeloader requires extensions-->
+    <codeloader>
+        <extension>.obj</extension>
+    </codeloader>
+</package>

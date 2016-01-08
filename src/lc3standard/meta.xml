@@ -1,0 +1,17 @@
+<package type="core">
+    <name>LC3 Standard Core</name>
+    <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
+    <version>1.0</version>
+    <classpath>lc3standard.Core</classpath>
+    <description>Standard LC3 core with instruction simulation. Each cycle executes one instruction.</description>
+    <!-- ioRegister and interruptVector elements are only for devices -->
+    <core>
+        <instruction_set>lc3</instruction_set>
+        <address_low>0x0000</address_low>
+        <address_high>0xFFFF</address_high>
+        <addressabilities>
+            <addressability>2</addressability>
+        </addressabilities>
+        <word_size>2</word_size>
+    </core>
+</package>
