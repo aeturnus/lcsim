@@ -28,6 +28,7 @@ public class LCSim
     static String VERSION = "0.1a";
     public static void main(String[] args) 
     {
+        //NOTE: .pkg's need to maintain the package directory structure
         try
         {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

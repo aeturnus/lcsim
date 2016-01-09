@@ -38,7 +38,8 @@ public class Display extends JPanel
         cells = null;                   //Remove all references
         this.removeAll();
         
-        cellFont = new Font("Courier New",Font.PLAIN,12);
+        //cellFont = new Font("Courier New",Font.PLAIN,12);
+        cellFont = new Font("Monospaced",Font.PLAIN,12);
         FontMetrics metrics = this.getFontMetrics(cellFont);
         cellWidth = metrics.charWidth(' ');
         cellHeight = metrics.getMaxAscent()+metrics.getMaxDescent();

@@ -122,6 +122,7 @@ public class Package
     private void handleException(Exception e)
     {
         System.out.println(e);
+        e.printStackTrace();
     }
     
     public String toString()
