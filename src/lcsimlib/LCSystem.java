@@ -2,6 +2,7 @@ package lcsimlib;
 
 import java.io.File;
 import java.util.Vector;
+import java.util.Hashtable;
 
 /*
  * The LCSystem class acts as the entire Little Computer system, with the CPU, memory, bus, debugger, and devices
@@ -9,11 +10,12 @@ import java.util.Vector;
 
 public class LCSystem extends Component
 {
-    public Core core;
-    public Vector<Device> devices;
-    public Vector<CodeLoader> loaders;
-    public Register mcr;    //machine control register
+    public Core core = null;
+    public Vector<Device> devices = null;
+    public Vector<CodeLoader> loaders = null ;
+    public Register mcr = null;    //machine control register
     private boolean profile;
+    private Symbol[] symbolTable;
     public LCSystem()
     {
         super();
@@ -44,10 +46,6 @@ public class LCSystem extends Component
          */
         if(profile)
         {
-            if((mcr.read2Bytes() & 0x8000 ) == 0)
-            {
-                return;
-            }
             core.profileCycle();
             for(int i = 0; i < devices.size(); ++i)
             {
@@ -61,10 +59,6 @@ public class LCSystem extends Component
         }
         else
         {
-            if((mcr.read2Bytes() & 0x8000 ) == 0)
-            {
-                return;
-            }
             core.cycle();
             for(int i = 0; i < devices.size(); ++i)
             {
@@ -77,6 +71,13 @@ public class LCSystem extends Component
             }
         }
     }
+    
+    public void cycleCheck()
+    {
+        if(!isRunning()){return;}
+        cycle();
+    }
+    
     public void enableProfiling()
     {
         profile = true;
@@ -93,16 +94,52 @@ public class LCSystem extends Component
         mcr = core.getIORegister(0xFFFE,2); //set up machine control register
         mcr.write2Bytes((short)0xFFFF);
     }
+    public void unsetCore()
+    {
+        core = null;
+        mcr = null;
+    }
+    
     public void addDevice(Device dev)
     {
         devices.add(dev);
         dev.init(this);
         dev.clearTotalTime();
     }
+    public void removeDevice(Device dev)
+    {
+        
+    }
+    
     public void addLoader(CodeLoader loader)
     {
         loaders.add(loader);
         loader.init(this);
+    }
+    public void removeLoader(CodeLoader loader)
+    {
+    }
+    
+    public String[] getExtensions()
+    {
+        String[][] extsArray = new String[loaders.size()][];
+        int size = 0;
+        for(int i = 0; i < loaders.size(); i++)
+        {
+            extsArray[i] = loaders.get(i).getExtensions();
+            size += extsArray[i].length;
+        }
+        String[] output = new String[size];
+        int spot = 0;
+        for(int i = 0; i < extsArray.length; i++)
+        {
+            for(int j = 0; j < extsArray[i].length; j++,spot++)
+            {
+                output[spot] = extsArray[i][j];//.substring(1);
+                System.out.println(output[spot]);
+            }
+        }
+        return output;
     }
     
     public boolean load(String pathName)
@@ -132,6 +169,30 @@ public class LCSystem extends Component
         return false;
     }
     
+    public void addSymbol(String name, int address)
+    {
+        addSymbol(new Symbol(name,address));
+    }
+    public void addSymbol(Symbol symbol)
+    {
+        symbolTable[symbol.getAddress()] = symbol;
+    }
+    public Symbol getSymbol(int address)
+    {
+        return symbolTable[address];        //O(1) lookup of symbol; but it takes memory in as ref array...
+    }
+    public Symbol getSymbol(String name)
+    {
+        for(int i = 0; i < symbolTable.length; i++)
+        {
+            if(name.equals(symbolTable[i].getName()))
+            {
+                return symbolTable[i];
+            }
+        }
+        return null;
+    }
+    
     public void printProfile()
     {
         /*
@@ -153,6 +214,15 @@ public class LCSystem extends Component
         System.out.println(getName() + " overhead: " + overheadT + " nsec (" + overheadP + "%)");
     }
     
+    public void startRunning()
+    {
+        mcr.write2Bytes((short)(mcr.read2Bytes() | 0x8000));
+    }
+    public void stopRunning()
+    {
+        mcr.write2Bytes((short)(mcr.read2Bytes() & 0x7FFF));
+    }
+    
     public boolean isRunning()
     {
         if( (mcr.read2Bytes() & 0x8000) == 0)
@@ -160,5 +230,9 @@ public class LCSystem extends Component
             return false;
         }
         return true;
+    }
+    public boolean isCoreLoaded()
+    {
+        return (core != null);
     }
 }

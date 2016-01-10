@@ -1,22 +1,139 @@
 package lcsim;
 
 import java.awt.Color;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
-import lcsim.pkg.*;
-import lcsim.pkg.Package;
-import lcsimlib.*;
 import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 
+import lcsim.gui.*;
+import lcsim.pkg.*;
+import lcsim.pkg.gui.*;
+import lcsim.pkg.Package;
+import lcsimlib.*;
+
 public class Test
 {
+    public static void testGUI(LCSystem sys)
+    {
+        PackageManager pacman = new PackageManager(sys,"packages/");
+        pacman.runLoadscript("lc3.lds");
+        MainFrame main = new MainFrame(sys,pacman);
+        main.setVisible(true);
+        
+        while(!sys.isCoreLoaded())
+        {
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        boolean firstStop = true;
+        sys.stopRunning();
+        sys.enableProfiling();
+        while(true)
+        {
+            if(sys.isRunning())
+            {
+                if(firstStop)
+                {
+                    firstStop = false;
+                }
+                sys.profileCycle();
+            }
+            else
+            {
+                if(!firstStop)
+                {
+                    break;
+                }
+                else
+                {
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        sys.printProfile();
+    }
+    
+    public static void testLoadScript(LCSystem sys)
+    {
+        PackageManager pacman = new PackageManager(sys,"packages/");
+        pacman.runLoadscript("lc3.lds");
+        PackageManagerWindow pacmanGui= new PackageManagerWindow(pacman);
+        pacmanGui.setVisible(true);
+        
+        System.out.println("Successfully loaded script");
+        
+        if(sys.load("termout.obj"))
+        {
+            System.out.println("Successfully loaded termout.obj");
+        }
+        else
+        {
+            System.out.println("Unsuccessful code load");
+        }
+        sys.enableProfiling();
+        while(sys.isRunning())
+        {
+            sys.profileCycle();
+        }
+        sys.printProfile();
+        System.exit(0);
+    }
+    public static void testPackageManagerGui(LCSystem sys)
+    {
+        PackageManager pacman = new PackageManager(sys,"packages/");
+        PackageManagerWindow pacmanGui= new PackageManagerWindow(pacman);
+        pacmanGui.setVisible(true);
+        while(pacmanGui.isShowing())
+        {
+        }
+        sys.load("termout.obj");
+        sys.enableProfiling();
+        while(sys.isRunning())
+        {
+            sys.profileCycle();
+        }
+        sys.printProfile();
+        System.exit(0);
+    }
+    
+    public static void testPackageManagerTerm(LCSystem sys)
+    {
+        PackageManager pacman = new PackageManager(sys,"packages/");
+        CorePackage[] cores = pacman.getCores();
+        DevicePackage[] devices = pacman.getDevices();
+        CodeLoaderPackage[] loaders = pacman.getCodeLoaders();
+        sys.setCore(cores[0].createObject());
+        sys.addDevice(devices[0].createObject());
+        sys.addLoader(loaders[0].createObject());
+        sys.load("termout.obj");
+        
+        sys.enableProfiling();
+        while(sys.isRunning())
+        {
+            sys.profileCycle();
+        }
+        sys.printProfile();
+        System.exit(0);
+    }
     
     public static void testPackageManager(LCSystem sys)
     {
-        PackageManager pacman = new PackageManager("packages/");
+        PackageManager pacman = new PackageManager(sys,"packages/");
     }
 
     public static void testPackage(LCSystem sys)
@@ -46,7 +163,7 @@ public class Test
         }
         sys.printProfile();
 
-        
+        System.exit(0);
         
     }
     

@@ -25,7 +25,7 @@ public class Display extends JPanel
     private int curC = 0;
     
     private int cursorDelay = 500; //Delay for cursor
-    private Timer cursorTimer;
+    private Timer cursorTimer=null;
     
     private Toolkit beepKit = java.awt.Toolkit.getDefaultToolkit();
     
@@ -36,6 +36,10 @@ public class Display extends JPanel
     private void construct()
     {
         cells = null;                   //Remove all references
+        if(cursorTimer!=null)
+        {
+            cursorTimer.removeActionListener(cursorTimer.getActionListeners()[0]);
+        }
         this.removeAll();
         
         //cellFont = new Font("Courier New",Font.PLAIN,12);
@@ -79,6 +83,12 @@ public class Display extends JPanel
         // TODO Auto-generated constructor stub
         //this.setSize(COLS * Cell.CELLWIDTH, ROWS * Cell.CELLHEIGHT);
         //this.setPreferredSize(new Dimension(COLS * Cell.CELLWIDTH, ROWS * Cell.CELLHEIGHT) );
+        this.setRowCol(rows,cols);
+    }
+    
+    public void setRowCol(int rows, int cols)
+    {
+        System.out.println("Console resetting rows and cols");
         ROWS = rows;
         COLS = cols;
         GridLayout layout = new GridLayout(ROWS,COLS);
@@ -88,26 +98,6 @@ public class Display extends JPanel
         construct();
     }
 
-    public Display(LayoutManager arg0)
-    {
-        super(arg0);
-        // TODO Auto-generated constructor stub
-        construct();
-    }
-
-    public Display(boolean arg0)
-    {
-        super(arg0);
-        // TODO Auto-generated constructor stub
-        construct();
-    }
-
-    public Display(LayoutManager arg0, boolean arg1)
-    {
-        super(arg0, arg1);
-        // TODO Auto-generated constructor stub
-    }
-    
     public void setCell(char c, int row, int col)
     {
         Cell cell = cells[row][col];
@@ -125,18 +115,21 @@ public class Display extends JPanel
     public void setCellFG(Color color, int row, int col)
     {
         cells[row][col].setFG(color);
-        cells[row][col].repaint();
     }
     public void setCellBG(Color color, int row, int col)
     {
         cells[row][col].setBG(color);
-        cells[row][col].repaint();
     }
     public void setCellColors(Color bg, Color fg, int row, int col)
     {
         cells[row][col].setBG(bg);
         cells[row][col].setFG(fg);
         cells[row][col].repaint();
+    }
+    public void setCellColorsQuiet(Color bg, Color fg, int row, int col)
+    {
+        cells[row][col].setBG(bg);
+        cells[row][col].setFG(fg);
     }
     
     public char[] getCellContentsLinear()

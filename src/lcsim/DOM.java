@@ -3,6 +3,8 @@ package lcsim;
 import java.io.File;
 import java.io.InputStream;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
+import java.util.Enumeration;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -76,7 +78,26 @@ public class DOM
     {
         try
         {
-            InputStream stream = zip.getInputStream(zip.getEntry(entry));
+            ZipEntry zipEntry = zip.getEntry(entry);
+            if(zipEntry == null)    //If it's null, try looking for it
+            {
+                Enumeration<? extends ZipEntry> entries = zip.entries();
+                String entryName;
+                while(entries.hasMoreElements())
+                {
+                    zipEntry = entries.nextElement();
+                    entryName = zipEntry.getName();
+                    if(entryName.endsWith(entry))   //Check if it ends with the file we're looking for
+                    {
+                        break;
+                    }
+                }
+                if(zipEntry == null)
+                {
+                    return null;
+                }
+            }
+            InputStream stream = zip.getInputStream(zipEntry);
             return newDocument(stream);
         }
         catch (Exception e)
@@ -84,6 +105,24 @@ public class DOM
             handleException(e);
         }
         return null;
+    }
+    
+    public static String getElement(Document doc, String name)
+    {
+        String output;
+        output = doc.getElementsByTagName(name).item(0).getTextContent();
+        return output;
+    }
+    public static String[] getElements(Document doc, String name)
+    {
+        String[] output;
+        NodeList list = doc.getElementsByTagName(name);
+        output = new String[list.getLength()];
+        for(int i= 0; i < output.length; i++)
+        {
+            output[i] = list.item(i).getTextContent();
+        }
+        return output;
     }
     
     private static void handleException(Exception e)

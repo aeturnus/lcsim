@@ -6,6 +6,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
+import lcsimlib.Device;
+
 public class DevicePackage extends Package
 {
     private int[] ioRegisters;
@@ -14,6 +16,13 @@ public class DevicePackage extends Package
     public DevicePackage(File pkgFile)
     {
         super(pkgFile);
+        
+    }
+    
+    protected void loadMetaData(Document doc)
+    {
+        super.loadMetaData(doc);
+        
         Element deviceNode = (Element) doc.getElementsByTagName("device").item(0);
         NodeList ioNodes = deviceNode.getElementsByTagName("io_register");
         NodeList ivNodes = deviceNode.getElementsByTagName("interrupt_vector");
@@ -31,6 +40,11 @@ public class DevicePackage extends Package
         {
             interruptVectors[i] = Integer.decode(ioNodes.item(i).getTextContent());
         }
+    }
+    
+    public Device createObject()
+    {
+        return (Device) super.createObject();
     }
     
     public String toString()

@@ -37,6 +37,15 @@ public abstract class CodeLoader
         return false;
     }
     
+    public String[] getExtensions()
+    {
+        if(extensions == null)
+        {
+            return new String[0];
+        }
+        return extensions.clone();
+    }
+    
     protected static void handleIOException(IOException e)
     {
         e.printStackTrace();

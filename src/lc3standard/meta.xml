@@ -2,7 +2,7 @@
     <name>LC3 Standard Core</name>
     <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
     <version>1.0</version>
-    <classpath>lc3standard.Core</classpath>
+    <class>lc3standard.Core</class>
     <description>Standard LC3 core with instruction simulation. Each cycle executes one instruction.</description>
     <!-- ioRegister and interruptVector elements are only for devices -->
     <core>

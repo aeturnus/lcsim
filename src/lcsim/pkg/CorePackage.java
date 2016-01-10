@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
+import lcsimlib.Core;
 //import java.util.Vector;
 
 public class CorePackage extends Package
@@ -22,6 +23,11 @@ public class CorePackage extends Package
     {
         // TODO Auto-generated constructor stub
         super(pkgFile);
+    }
+    
+    protected void loadMetaData(Document doc)
+    {
+        super.loadMetaData(doc);
         Element coreNode = (Element) doc.getElementsByTagName("core").item(0);
         instructionSet = coreNode.getElementsByTagName("instruction_set").item(0).getTextContent();
         addressLow = Integer.decode(coreNode.getElementsByTagName("address_low").item(0).getTextContent());
@@ -34,7 +40,11 @@ public class CorePackage extends Package
             addressabilities[i] = Integer.parseUnsignedInt(adsList.item(i).getTextContent());
         }
         wordSize = Integer.parseUnsignedInt(coreNode.getElementsByTagName("word_size").item(0).getTextContent());
-        
+    }
+    
+    public Core createObject()
+    {
+        return (Core) super.createObject();
     }
     
     public String getString()

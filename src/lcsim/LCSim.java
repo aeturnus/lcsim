@@ -7,6 +7,10 @@ import java.net.URLClassLoader;
 import java.net.URL;
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.zip.ZipFile;
@@ -31,11 +35,13 @@ public class LCSim
         //NOTE: .pkg's need to maintain the package directory structure
         try
         {
+            //FileOutputStream fout = new FileOutputStream("log.txt");
+            //System.setOut(new PrintStream(fout));
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch(Exception e)
         {
-            System.out.println(e);
+            e.printStackTrace();
         }
         System.out.printf("Little Computer Simulator v%s\n",VERSION);
         //We need to lookup classes that implement our interfaces
@@ -47,8 +53,12 @@ public class LCSim
             LCSystem sys = new LCSystem();
             System.out.println("Working dir = " + System.getProperty("user.dir"));
             
-            Test.testPackage(sys);
+            Test.testGUI(sys);
+            //Test.testLoadScript(sys);
+            //Test.testPackageManagerGui(sys);
+            //Test.testPackageManagerTerm(sys);
             //Test.testPackageManager(sys);
+            //Test.testPackage(sys);
             
         }
         catch(Exception e)

@@ -1,11 +1,12 @@
 <package type="codeloader">
-    <name>LC3 .obj loader</name>
+    <name>LC3 .bin and .hex loader</name>
     <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
     <version>1.0</version>
-    <class>lc3objloader.ObjLoader</class>
-    <description>Standard LC3 .obj loader.</description>
+    <class>lc3binhexloader.BinHexLoader</class>
+    <description>LC3 .bin and .hex loader.</description>
     <!-- Codeloader requires extensions-->
     <codeloader>
-        <extension>.obj</extension>
+        <extension>.bin</extension>
+        <extension>.hex</extension>
     </codeloader>
 </package>

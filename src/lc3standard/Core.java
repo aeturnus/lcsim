@@ -5,6 +5,7 @@ import java.util.Vector;
 import lcsimlib.InterruptLine;
 import lcsimlib.LCSystem;
 import lcsimlib.Register;
+import lcsimlib.Symbol;
 
 import lcsimlib.Bits;
 
@@ -19,6 +20,7 @@ public class Core extends lcsimlib.Core
     private Vector<Integer> intVector;  //io regs
     private short[] memory;
     
+    private Symbol[] symbolTable;
     
     private int state;
     private final int FETCH = 0;

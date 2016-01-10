@@ -5,6 +5,8 @@ public abstract class Core extends Component
     //abstract public void init(LCSystem system);
     //abstract public void cycle();   //Up to programmer for how to implement: instruction or cycle level sim
     
+    
+    
     abstract public Register getIORegister(int address);    //Get a reference to an IO register for use
     abstract public Register getIORegister(int address, int size);    //Get a reference to an IO register for use; with size!
     abstract public InterruptLine getIntLine(int vector);   //Get a reference to a particular interrupt line

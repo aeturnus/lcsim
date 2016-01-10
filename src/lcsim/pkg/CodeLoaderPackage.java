@@ -6,12 +6,20 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
+import lcsimlib.CodeLoader;
+
 public class CodeLoaderPackage extends Package
 {
     private String[] extensions;
     public CodeLoaderPackage(File pkgFile)
     {
         super(pkgFile);
+        
+    }
+    
+    protected void loadMetaData(Document doc)
+    {
+        super.loadMetaData(doc);
         Element codeloaderNode = (Element) doc.getElementsByTagName("codeloader").item(0);
         NodeList extList = codeloaderNode.getElementsByTagName("extension");
         extensions = new String[extList.getLength()];
@@ -19,6 +27,11 @@ public class CodeLoaderPackage extends Package
         {
             extensions[i] = extList.item(i).getTextContent();
         }
+    }
+    
+    public CodeLoader createObject()
+    {
+        return (CodeLoader) super.createObject();
     }
     
     public String toString()
