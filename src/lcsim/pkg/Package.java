@@ -1,7 +1,5 @@
 package lcsim.pkg;
 
-import lcsim.DOM;
-
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.io.File;
@@ -14,6 +12,9 @@ import java.util.Enumeration;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import lcsimlib.DOM;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 

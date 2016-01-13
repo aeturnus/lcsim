@@ -1,4 +1,4 @@
-package lcsim;
+package lcsimlib;
 
 import java.io.File;
 import java.io.InputStream;
