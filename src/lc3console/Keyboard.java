@@ -27,10 +27,10 @@ public class Keyboard extends Device implements KeyListener
     public void init(LCSystem system)
     {
         // TODO Auto-generated method stub
-        kbsr = system.core.getIORegister(0xFE00);       //Get keyboard io regs
-        kbdr = system.core.getIORegister(0xFE02);
+        kbsr = system.getCore().getIORegister(0xFE00);       //Get keyboard io regs
+        kbdr = system.getCore().getIORegister(0xFE02);
         //kbdr.read2Bytes();                              //Force it to be read for first keystroke
-        intLine = system.core.getIntLine(0x80);         //Set up keyboard interrupt line
+        intLine = system.getCore().getIntLine(0x80);         //Set up keyboard interrupt line
         intLine.setPL(4);                               //Set priority of 4
         
         critical = false;
@@ -40,7 +40,7 @@ public class Keyboard extends Device implements KeyListener
     }
 
     @Override
-    public void cycle()
+    public void cycleInternal()
     {
         // TODO Auto-generated method stub
         //TODO: Get the logic right
@@ -50,6 +50,10 @@ public class Keyboard extends Device implements KeyListener
         //If it's been read, put in the latest typed char
         
         //Delay is here because we want to spend more time not in a critical section
+        if(kbdr.read())
+        {
+            delay = 0;
+        }
         if(delay>0)
         {
             delay--;
@@ -69,7 +73,7 @@ public class Keyboard extends Device implements KeyListener
             {
                 setFresh();
                 writeData(currentChar);
-                //System.out.println(String.format("KBDR: x%04X", kbdr.read2Bytes()));
+                fireInterrupt();
                 inputEntered = false;
             }
             

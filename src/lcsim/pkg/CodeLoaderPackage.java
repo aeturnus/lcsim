@@ -42,7 +42,7 @@ public class CodeLoaderPackage extends Package
         {
             output += extensions[i] + ", ";
         }
-        output += extensions[extensions.length - 1] + "]";
+        output += extensions[extensions.length - 1] + " ]";
         
         return output;
     }

@@ -48,8 +48,8 @@ public class Console extends Device
         name = "LC3 Console";
         ddelay = DDELAY;  //Have a sort of boot delay :D :D :D
         
-        dsr = system.core.getIORegister(0xFE04);        //Get display io regs
-        ddr = system.core.getIORegister(0xFE06);
+        dsr = system.getCore().getIORegister(0xFE04);        //Get display io regs
+        ddr = system.getCore().getIORegister(0xFE06);
         
         keyboard = new Keyboard();  //Keyboard acts as a sub-device under the console
         keyboard.init(system);
@@ -58,7 +58,7 @@ public class Console extends Device
     }
 
     @Override
-    public void cycle() 
+    public void cycleInternal() 
     {
         keyboard.cycle();
         

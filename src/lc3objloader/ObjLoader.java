@@ -9,6 +9,7 @@ import java.io.IOException;
 import lcsimlib.CodeLoader;
 import lcsimlib.Core;
 import lcsimlib.LCSystem;
+import lcsimlib.RegEnum;
 
 public class ObjLoader extends CodeLoader
 {
@@ -27,44 +28,13 @@ public class ObjLoader extends CodeLoader
     
     public boolean load(String filePath)
     {
-        Core core = system.core;
-        
-        
-        if(!checkExtension(filePath))
-        {
-            return false;
-        }
-        File f = new File(filePath);
-        try
-        {
-            InputStream raw = new FileInputStream(f);
-            BufferedInputStream stream = new BufferedInputStream(raw);
-            
-            int entry = read2BytesBE(stream);
-            int addr = entry;
-            short data;
-            
-            //Marks spot, reads, resets, then marks for next iteration
-            for(stream.mark(1); stream.read() != -1; stream.mark(1),addr++)
-            {
-                stream.reset();
-                data = read2BytesBE(stream);
-                core.writeMem2Bytes(addr, data);
-            }
-            
-            stream.close();
-            return true;
-        }
-        catch (IOException e)
-        {
-            handleIOException(e);
-        }
-        return false;
+        File file = new File(filePath);
+        return load(file);
     }
     
     public boolean load(File file)
     {
-        Core core = system.core;
+        Core core = system.getCore();
         if(!checkExtension(file.getAbsolutePath()))
         {
             return false;
@@ -85,8 +55,8 @@ public class ObjLoader extends CodeLoader
                 data = read2BytesBE(stream);
                 core.writeMem2Bytes(addr, data);
             }
-            
             stream.close();
+            core.getRegister(RegEnum.PC).write2Bytes((short)(entry & 0xFFFF));
             return true;
         }
         catch (IOException e)

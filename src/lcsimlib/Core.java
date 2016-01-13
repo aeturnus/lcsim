@@ -34,32 +34,15 @@ public abstract class Core extends Component
 
 
     //Direct general purpose register reading and writing
-    abstract public byte readGPR1Bytes(int regnum);
-    abstract public short readGPR2Bytes(int regnum);
-    abstract public int readGPR4Bytes(int regnum);
-    abstract public long readGPR8Bytes(int regnum);
-    
-    abstract public void writeGPR1Bytes(int regnum, byte data);
-    abstract public void writeGPR2Bytes(int regnum, short data);
-    abstract public void writeGPR4Bytes(int regnum, int data);
-    abstract public void writeGPR8Bytes(int regnum, long data);
+    abstract public Register getRegister(RegEnum reg);
+    abstract public Register[] getRegisters();
     
     //Direct special purpose register reading and writing
     //Constants for 
-    public static final int SPR_PC = 0;  //program counter or instruction pointer
-    public static final int SPR_IR = 1;
-    public static final int SPR_PSR = 2;
     
-    abstract public byte readSPR1Bytes(int regnum);
-    abstract public short readSPR2Bytes(int regnum);
-    abstract public int readSPR4Bytes(int regnum);
-    abstract public long readSPR8Bytes(int regnum);
     
-    abstract public void writeSPR1Bytes(int regnum, byte data);
-    abstract public void writeSPR2Bytes(int regnum, short data);
-    abstract public void writeSPR4Bytes(int regnum, int data);
-    abstract public void writeSPR8Bytes(int regnum, long data);
     
     abstract public void printRegisters();
     abstract public void printMemory(int low,int high);
+    
 }

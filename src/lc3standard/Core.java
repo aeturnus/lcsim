@@ -5,6 +5,7 @@ import java.util.Vector;
 import lcsimlib.InterruptLine;
 import lcsimlib.LCSystem;
 import lcsimlib.Register;
+import lcsimlib.RegEnum;
 import lcsimlib.Symbol;
 
 import lcsimlib.Bits;
@@ -20,40 +21,42 @@ public class Core extends lcsimlib.Core
     private Vector<Integer> intVector;  //io regs
     private short[] memory;
     
-    private Symbol[] symbolTable;
-    
     private int state;
-    private final int FETCH = 0;
-    private final int DEXECUTE = 1;
     
+    private final static int FETCH = 0;
+    private final static int DEXECUTE = 1;
     
-    private final int PC = 8;
-    private final int IR = 9;
-    private final int PSR = 10;
-    private final int MAR = 11;
-    private final int MDR = 12;
-    private final int USP = 13;
-    private final int SSP = 14;
+    private final static int SPR_PC = 0;  //program counter or instruction pointer
+    private final static int SPR_IR = 1;
+    private final static int SPR_PSR = 2;
     
-    private final int ADD   = 0b0001;
-    private final int AND   = 0b0101;
-    private final int BR    = 0b0000;
-    private final int JMP   = 0b1100;
-    private final int JSR   = 0b0100;
-    private final int LD    = 0b0010;
-    private final int LDI   = 0b1010;
-    private final int LDR   = 0b0110;
-    private final int LEA   = 0b1110;
-    private final int NOT   = 0b1001;
-    private final int RTI   = 0b1000;
-    private final int ST    = 0b0011;
-    private final int STI   = 0b1011;
-    private final int STR   = 0b0111;
-    private final int TRAP  = 0b1111;
-    private final int RESV  = 0b1101;
+    private final static int PC = 8;
+    private final static int IR = 9;
+    private final static int PSR = 10;
+    private final static int MAR = 11;
+    private final static int MDR = 12;
+    private final static int USP = 13;
+    private final static int SSP = 14;
     
-    private final int PRIV_E = 0;
-    private final int ILLOP_E= 1;
+    private final static int ADD   = 0b0001;
+    private final static int AND   = 0b0101;
+    private final static int BR    = 0b0000;
+    private final static int JMP   = 0b1100;
+    private final static int JSR   = 0b0100;
+    private final static int LD    = 0b0010;
+    private final static int LDI   = 0b1010;
+    private final static int LDR   = 0b0110;
+    private final static int LEA   = 0b1110;
+    private final static int NOT   = 0b1001;
+    private final static int RTI   = 0b1000;
+    private final static int ST    = 0b0011;
+    private final static int STI   = 0b1011;
+    private final static int STR   = 0b0111;
+    private final static int TRAP  = 0b1111;
+    private final static int RESV  = 0b1101;
+    
+    private final static int PRIV_E = 0;
+    private final static int ILLOP_E= 1;
  
     public Core()
     {
@@ -69,13 +72,13 @@ public class Core extends lcsimlib.Core
         gprs = new Register[8];
         for(int i = 0; i < 8; i++)
         {
-            gprs[i] = new Register(2);
+            gprs[i] = new Register(2, "R"+i);
         }
         
         sprs = new Register[7];
-        sprs[SPR_PC] = new Register(2,"PC ");
+        sprs[SPR_PC] = new Register(2,"PC");
         sprs[SPR_PC].write2Bytes((short)0x3000);
-        sprs[SPR_IR] = new Register(2,"IR ");
+        sprs[SPR_IR] = new Register(2,"IR");
         sprs[SPR_PSR] = new Register(2,"PSR");
         sprs[SPR_PSR].write2Bytes((short)0x0002);          //init it so that the Z bit is set
         sprs[SPR_PSR+1]= new Register(2,"MAR");
@@ -101,7 +104,7 @@ public class Core extends lcsimlib.Core
     }
 
     @Override
-    public void cycle() 
+    public void cycleInternal() 
     {
         switch(state)
         {
@@ -387,7 +390,6 @@ public class Core extends lcsimlib.Core
         writeReg(MDR,data);
         this.writeMem2Bytes((int)readReg(MAR), readReg(MDR));
     }
-    
 
     
     //Required stuff
@@ -514,100 +516,36 @@ public class Core extends lcsimlib.Core
     }
 
     @Override
-    public byte readGPR1Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
+    public Register getRegister(RegEnum reg) {
+        switch(reg)
+        {
+        case R0: return gprs[0]; case R1: return gprs[1]; case R2: return gprs[2]; case R3: return gprs[3]; case R4: return gprs[4]; case R5: return gprs[5]; case R6: return gprs[6]; case R7: return gprs[7]; 
+        case PC:
+            return sprs[SPR_PC];
+        case IR:
+            return sprs[SPR_IR];
+        case PSR:
+            return sprs[SPR_PSR];
+        case MAR:
+            return sprs[SPR_PSR+1];
+        case MDR:
+            return sprs[SPR_PSR+2];
+        default:
+            return null;
+        }
     }
-
-    @Override
-    public short readGPR2Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return gprs[regnum].read2Bytes();
-    }
-
-    @Override
-    public int readGPR4Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public long readGPR8Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void writeGPR1Bytes(int regnum, byte data) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void writeGPR2Bytes(int regnum, short data) {
-        // TODO Auto-generated method stub
-        gprs[regnum].write2Bytes(data);
-
-    }
-
-    @Override
-    public void writeGPR4Bytes(int regnum, int data) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void writeGPR8Bytes(int regnum, long data) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public byte readSPR1Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public short readSPR2Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return sprs[regnum].read2Bytes();
-    }
-
-    @Override
-    public int readSPR4Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public long readSPR8Bytes(int regnum) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void writeSPR1Bytes(int regnum, byte data) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void writeSPR2Bytes(int regnum, short data) {
-        // TODO Auto-generated method stub
-        sprs[regnum].write2Bytes(data);
-    }
-
-    @Override
-    public void writeSPR4Bytes(int regnum, int data) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void writeSPR8Bytes(int regnum, long data) {
-        // TODO Auto-generated method stub
-
+    public Register[] getRegisters() {
+        Register[] out = new Register[gprs.length+sprs.length];
+        int index = 0;
+        for(int i= 0; i < gprs.length; i++,index++)
+        {
+            out[index] = gprs[i];
+        }
+        for(int i= 0; i < gprs.length; i++,index++)
+        {
+            out[index] = sprs[i];
+        }
+        return out;
     }
  
     public void show()

@@ -7,7 +7,7 @@ package lcsimlib;
 public abstract class Component 
 {
     private long totalTime;
-    private int cycles;
+    private long cycles;
     protected String name;
     
     Component()
@@ -17,15 +17,15 @@ public abstract class Component
     }
     
     abstract public void init(LCSystem system);
-    abstract public void cycle();
+    abstract protected void cycleInternal();
     
     abstract public void openConfig();
     abstract public void show();
     
-    final public void profileCycle()
+    final public void cycle()
     {
         long start = System.nanoTime();
-        cycle();
+        cycleInternal();
         long end = System.nanoTime();
         ++cycles;
         totalTime += end - start;
@@ -38,8 +38,9 @@ public abstract class Component
     {
         cycles = 0;
     }
+    final public long getCycles() { return cycles;}
     final public long getTotalTime() { return totalTime;}
-    final public long getAverageTime() { return totalTime/cycles;}
+    final public long getAverageTime() { return cycles!=0?totalTime/cycles:0;}
     final public String getName(){return name;}
 }
 //*/

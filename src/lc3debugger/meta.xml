@@ -1,0 +1,9 @@
+<package type="debugger">
+    <name>LC3 Debugger</name>
+    <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
+    <version>1.0</version>
+    <class>lc3debugger.Debugger</class>
+    <description>LC3 debugger with standard controls. Recognizes only the standard LC3</description>
+    <debugger>
+    </debugger>
+</package>

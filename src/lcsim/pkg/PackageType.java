@@ -5,6 +5,7 @@ public enum PackageType
     CORE,
     DEVICE,
     CODELOADER,
+    DEBUGGER,
     PLUGIN,
     INVALID;
     
@@ -22,6 +23,9 @@ public enum PackageType
             break;
         case "codeloader":
             output = CODELOADER;
+            break;
+        case "debugger":
+            output = DEBUGGER;
             break;
         case "plugin":
             output = PLUGIN;
@@ -43,6 +47,9 @@ public enum PackageType
             break;
         case CODELOADER:
             output = "Code Loader";
+            break;
+        case DEBUGGER:
+            output = "Debugger";
             break;
         case PLUGIN:
             output = "Plugin";

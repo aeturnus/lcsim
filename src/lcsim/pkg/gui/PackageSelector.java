@@ -13,6 +13,7 @@ import java.awt.FlowLayout;
 import javax.swing.BoxLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.SwingConstants;
 
 import lcsim.pkg.*;
 import lcsim.pkg.Package;
@@ -24,33 +25,38 @@ public class PackageSelector extends JPanel
     private Package selectedPackage = null;
     
     JPanel corePanel;
-    JPanel devicePanel;
-    JPanel loaderPanel;
-    JPanel loadedPanel;
-    
     JLabel coreLabel;
-    JLabel deviceLabel;
-    JLabel loaderLabel;
-    JLabel loadedLabel;
-    
     JScrollPane coreScroll;
-    JScrollPane deviceScroll;
-    JScrollPane loaderScroll;
-    JScrollPane loadedScroll;
-    
     JList<CorePackage> coreChooser;
-    JList<DevicePackage> deviceChooser;
-    JList<CodeLoaderPackage> loaderChooser;
-    JList<Package> loadedChooser;
-    
     DefaultListModel<CorePackage> coreModel;
-    DefaultListModel<DevicePackage> deviceModel;
-    DefaultListModel<CodeLoaderPackage> loaderModel;
-    DefaultListModel<Package> loadedModel;
-    
     ListSelectionListener coreListener;
+    
+    JPanel devicePanel;
+    JLabel deviceLabel;
+    JScrollPane deviceScroll;
+    JList<DevicePackage> deviceChooser;
+    DefaultListModel<DevicePackage> deviceModel;
     ListSelectionListener deviceListener;
+    
+    JPanel loaderPanel;
+    JLabel loaderLabel;
+    JScrollPane loaderScroll;
+    JList<CodeLoaderPackage> loaderChooser;
+    DefaultListModel<CodeLoaderPackage> loaderModel;
     ListSelectionListener loaderListener;
+    
+    JPanel debuggerPanel;
+    JLabel debuggerLabel;
+    JScrollPane debuggerScroll;
+    JList<DebuggerPackage> debuggerChooser;
+    DefaultListModel<DebuggerPackage> debuggerModel;
+    ListSelectionListener debuggerListener;
+    
+    JPanel loadedPanel;
+    JLabel loadedLabel;
+    JScrollPane loadedScroll;
+    JList<Package> loadedChooser;
+    DefaultListModel<Package> loadedModel;
     ListSelectionListener loadedListener;
     
     public PackageSelector(PackageManagerWindow packageManagerWindow)
@@ -63,8 +69,6 @@ public class PackageSelector extends JPanel
         this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
         
         //
-        //corePanel = new JPanel();
-        
         coreLabel = new JLabel(PackageType.CORE.toString());
         coreLabel.setVisible(true);
         this.add(coreLabel);
@@ -115,7 +119,24 @@ public class PackageSelector extends JPanel
         loaderScroll.setViewportView(loaderChooser);
         loaderListener = new ListSelectionListener() {public void valueChanged(ListSelectionEvent e){loaderSelected(e);}};
         loaderChooser.addListSelectionListener(loaderListener);
-        //loaderChooser.addListSelectionListener(onSelect);
+        
+        //
+        debuggerLabel = new JLabel(PackageType.DEBUGGER.toString());
+        debuggerLabel.setVisible(true);
+        this.add(debuggerLabel);
+        
+        debuggerScroll = new JScrollPane();
+        this.add(debuggerScroll);
+        
+        debuggerModel = new DefaultListModel();
+        debuggerChooser = new JList<DebuggerPackage>(debuggerModel);
+        debuggerChooser.setVisible(true);
+        debuggerChooser.setCellRenderer(new PackageListCellRenderer());
+        debuggerChooser.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        debuggerScroll.setViewportView(debuggerChooser);
+        debuggerListener = new ListSelectionListener() {public void valueChanged(ListSelectionEvent e){debuggerSelected(e);}};
+        debuggerChooser.addListSelectionListener(debuggerListener);
+        
         
         //
         loadedLabel = new JLabel("Loaded packages");
@@ -161,6 +182,13 @@ public class PackageSelector extends JPanel
             loaderModel.addElement(loaders[i]);
         }
         
+        debuggerModel.clear();
+        DebuggerPackage[] debuggers= pacman.getDebuggers();
+        for(int i = 0; i < debuggers.length; i++)
+        {
+            debuggerModel.addElement(debuggers[i]);
+        }
+        
         loadedModel.clear();
         Package[] loadeds = pacman.getLoadedPackages();
         for(int i = 0; i < loadeds.length; i++)
@@ -169,7 +197,7 @@ public class PackageSelector extends JPanel
         }
         
         //Disable selection of other selections without a core
-        if(!pacman.getSystem().isCoreLoaded())
+        if(!pacman.getSystem().hasCore())
         {
             coreChooser.setEnabled(true);
             coreChooser.setVisible(true);
@@ -183,6 +211,14 @@ public class PackageSelector extends JPanel
             
             loaderChooser.setEnabled(true);
             loaderChooser.setVisible(true);
+            
+            if(debuggerChooser.isVisible())
+            {
+                debuggerLabel.setText("Debugger (load a Core first)");
+            }
+            debuggerChooser.setEnabled(false);
+            debuggerChooser.setVisible(false);
+
             
             loadedChooser.setEnabled(true);
             loadedChooser.setVisible(true);
@@ -202,6 +238,13 @@ public class PackageSelector extends JPanel
             loaderChooser.setEnabled(true);
             loaderChooser.setVisible(true);
             
+            if(!debuggerChooser.isVisible())
+            {
+                debuggerLabel.setText("Debugger");
+            }
+            debuggerChooser.setEnabled(true);
+            debuggerChooser.setVisible(true);
+            
             loadedChooser.setEnabled(true);
             loadedChooser.setVisible(true);
         }
@@ -218,8 +261,10 @@ public class PackageSelector extends JPanel
     {
         selectedPackage = null;
         
+        //coreChooser.clearSelection();
         deviceChooser.clearSelection();
         loaderChooser.clearSelection();
+        debuggerChooser.clearSelection();
         loadedChooser.clearSelection();
         
         selectedPackage = coreChooser.getSelectedValue();
@@ -231,6 +276,8 @@ public class PackageSelector extends JPanel
         
         coreChooser.clearSelection();
         loaderChooser.clearSelection();
+        //deviceChooser.clearSelection();
+        debuggerChooser.clearSelection();
         loadedChooser.clearSelection();
         
         selectedPackage = deviceChooser.getSelectedValue();
@@ -240,20 +287,37 @@ public class PackageSelector extends JPanel
     {
         selectedPackage = null;
         
-        deviceChooser.clearSelection();
         coreChooser.clearSelection();
+        deviceChooser.clearSelection();
+        //loaderChooser.clearSelection();
+        debuggerChooser.clearSelection();
         loadedChooser.clearSelection();
         
         selectedPackage = loaderChooser.getSelectedValue();
+        pacmanWindow.handleSelectorSelection();
+    }
+    private void debuggerSelected(ListSelectionEvent e)
+    {
+        selectedPackage = null;
+        
+        coreChooser.clearSelection();
+        deviceChooser.clearSelection();
+        loaderChooser.clearSelection();
+        //debuggerChooser.clearSelection();
+        loadedChooser.clearSelection();
+        
+        selectedPackage = debuggerChooser.getSelectedValue();
         pacmanWindow.handleSelectorSelection();
     }
     private void loadedSelected(ListSelectionEvent e)
     {
         selectedPackage = null;
         
+        coreChooser.clearSelection();
         deviceChooser.clearSelection();
         loaderChooser.clearSelection();
-        coreChooser.clearSelection();
+        debuggerChooser.clearSelection();
+        //loadedChooser.clearSelection();
         
         selectedPackage = loadedChooser.getSelectedValue();
         pacmanWindow.handleSelectorSelection();

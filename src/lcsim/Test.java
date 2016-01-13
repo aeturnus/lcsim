@@ -1,6 +1,7 @@
 package lcsim;
 
 import java.awt.Color;
+import javax.swing.JPanel;
 
 import java.io.*;
 import java.util.zip.*;
@@ -14,14 +15,16 @@ import lcsimlib.*;
 
 public class Test
 {
-    public static void testGUI(LCSystem sys)
+    public static void testMain(LCSystem sys)
     {
         PackageManager pacman = new PackageManager(sys,"packages/");
-        pacman.runLoadscript("lc3.lds");
+        pacman.loadXML("lc3.xml");
+        System.out.println("XML loading complete!");
         MainFrame main = new MainFrame(sys,pacman);
         main.setVisible(true);
+        System.out.println("Main window has been set visible!");
         
-        while(!sys.isCoreLoaded())
+        while(!sys.hasCore())
         {
             try
             {
@@ -33,9 +36,72 @@ public class Test
             }
         }
         
+        while(!sys.hasDebugger())
+        {
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        JPanel debug = sys.getDebugger().getGUI();
+        debug.setVisible(true);
+        main.add(debug);
+        main.repaint();
+        System.out.println("Debugger added to gui");
+        sys.stopRunning();
+        
+        /*
+        sys.enableProfiling();
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        while(true)
+        {
+            sys.cycleCheck();
+        }
+        */
+    }
+    
+    public static void testGUI(LCSystem sys)
+    {
+        PackageManager pacman = new PackageManager(sys,"packages/");
+        pacman.loadXML("lc3.xml");
+        MainFrame main = new MainFrame(sys,pacman);
+        main.setVisible(true);
+        
+        while(!sys.hasCore())
+        {
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        while(!sys.hasDebugger())
+        {
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        JPanel debug = sys.getDebugger().getGUI();
+        debug.setVisible(true);
+        main.add(debug);
+        main.repaint();
+        System.out.println("Debugger added to gui");
+        
         boolean firstStop = true;
         sys.stopRunning();
-        sys.enableProfiling();
         while(true)
         {
             if(sys.isRunning())
@@ -44,7 +110,7 @@ public class Test
                 {
                     firstStop = false;
                 }
-                sys.profileCycle();
+                sys.cycle();
             }
             else
             {
@@ -71,7 +137,7 @@ public class Test
     public static void testLoadScript(LCSystem sys)
     {
         PackageManager pacman = new PackageManager(sys,"packages/");
-        pacman.runLoadscript("lc3.lds");
+        pacman.loadXML("lc3.lds");
         PackageManagerWindow pacmanGui= new PackageManagerWindow(pacman);
         pacmanGui.setVisible(true);
         
@@ -85,10 +151,9 @@ public class Test
         {
             System.out.println("Unsuccessful code load");
         }
-        sys.enableProfiling();
         while(sys.isRunning())
         {
-            sys.profileCycle();
+            sys.cycle();
         }
         sys.printProfile();
         System.exit(0);
@@ -102,10 +167,9 @@ public class Test
         {
         }
         sys.load("termout.obj");
-        sys.enableProfiling();
         while(sys.isRunning())
         {
-            sys.profileCycle();
+            sys.cycle();
         }
         sys.printProfile();
         System.exit(0);
@@ -122,10 +186,9 @@ public class Test
         sys.addLoader(loaders[0].createObject());
         sys.load("termout.obj");
         
-        sys.enableProfiling();
         while(sys.isRunning())
         {
-            sys.profileCycle();
+            sys.cycle();
         }
         sys.printProfile();
         System.exit(0);
@@ -156,10 +219,9 @@ public class Test
         sys.addDevice(console);
         sys.addLoader(objLoader);
         sys.load("termout.obj");
-        sys.enableProfiling();
         while(sys.isRunning())
         {
-            sys.profileCycle();
+            sys.cycle();
         }
         sys.printProfile();
 
@@ -217,10 +279,9 @@ public class Test
             
             objloader.load("termout.obj");
             
-            sys.enableProfiling();
             while(sys.isRunning())
             {
-                sys.profileCycle();
+                sys.cycle();
             }
             sys.printProfile();
             System.exit(0);

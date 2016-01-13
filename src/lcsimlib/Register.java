@@ -70,23 +70,43 @@ public class Register
         data[7] = (byte)( (in >>> 56) & 0xFF );
         w = true;
     }
+    
+    
+    
     public byte read1Bytes()
     {
         r = true;
-        return data[0];
+        return peek1Bytes();
     }
     public short read2Bytes()
     {
         r = true;
+        return peek2Bytes();
+    }
+    public int read4Bytes()
+    {
+        r = true;
+        return peek4Bytes();
+    }
+    public long read8Bytes()
+    {
+        r = true;
+        return peek8Bytes();
+    }
+    public byte peek1Bytes()
+    {
+        return data[0];
+    }
+    public short peek2Bytes()
+    {
         short output = 0;
         output |= data[1]&0xFF;
         output <<= 8;
         output |= data[0]&0xFF;
         return output;
     }
-    public int read4Bytes()
+    public int peek4Bytes()
     {
-        r = true;
         int output = 0;
         output |= data[3]&0xFF;
         output <<= 8;
@@ -97,9 +117,8 @@ public class Register
         output |= data[0]&0xFF;
         return output;
     }
-    public long read8Bytes()
+    public long peek8Bytes()
     {
-        r = true;
         int output = 0;
         output |= data[7]&0xFF;
         output <<= 8;

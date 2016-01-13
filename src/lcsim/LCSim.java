@@ -53,7 +53,8 @@ public class LCSim
             LCSystem sys = new LCSystem();
             System.out.println("Working dir = " + System.getProperty("user.dir"));
             
-            Test.testGUI(sys);
+            Test.testMain(sys);
+            //Test.testGUI(sys);
             //Test.testLoadScript(sys);
             //Test.testPackageManagerGui(sys);
             //Test.testPackageManagerTerm(sys);

@@ -10,19 +10,19 @@ import java.util.Hashtable;
 
 public class LCSystem extends Component
 {
-    public Core core = null;
-    public Vector<Device> devices = null;
-    public Vector<CodeLoader> loaders = null ;
-    public Register mcr = null;    //machine control register
-    private boolean profile;
+    private Core core = null;
+    private Debugger debugger = null;
+    private Vector<Device> devices = null;
+    private Vector<CodeLoader> loaders = null ;
+    private Register mcr = null;    //machine control register
     private Symbol[] symbolTable;
     public LCSystem()
     {
         super();
         devices = new Vector<Device>();
         loaders = new Vector<CodeLoader>();
+        symbolTable = new Symbol[0x10000];
         name = "Little Computer";
-        profile = true;
     }
     
     public void init(LCSystem system)
@@ -35,39 +35,18 @@ public class LCSystem extends Component
     public void show()
     {
     }
-    public boolean getProfile(){return profile;}
-    public void setProfile(){profile = true;}
-    public void unsetProfile(){profile = false;}
     
-    public void cycle()
+    public void cycleInternal()
     {
-        /*
-         * TODO: Module performance profiling
-         */
-        if(profile)
+        
+        core.cycle();
+        for(int i = 0; i < devices.size(); ++i)
         {
-            core.profileCycle();
-            for(int i = 0; i < devices.size(); ++i)
+            if(!devices.get(i).hasOwnClock())
             {
-                if(!devices.get(i).hasOwnClock())
-                {
-                    //Device dev = devices.get(i);
-                    ///dev.profileCycle();
-                    devices.get(i).profileCycle();
-                }
-            }
-        }
-        else
-        {
-            core.cycle();
-            for(int i = 0; i < devices.size(); ++i)
-            {
-                if(!devices.get(i).hasOwnClock())
-                {
-                    //Device dev = devices.get(i);
-                    ///dev.profileCycle();
-                    devices.get(i).cycle();
-                }
+                //Device dev = devices.get(i);
+                ///dev.profileCycle();
+                devices.get(i).cycle();
             }
         }
     }
@@ -76,15 +55,6 @@ public class LCSystem extends Component
     {
         if(!isRunning()){return;}
         cycle();
-    }
-    
-    public void enableProfiling()
-    {
-        profile = true;
-    }
-    public void disableProfiling()
-    {
-        profile = false;
     }
     
     public void setCore(Core assignedCore)
@@ -120,6 +90,16 @@ public class LCSystem extends Component
     {
     }
     
+    public void setDebugger(Debugger debugger)
+    {
+        this.debugger = debugger;
+        System.out.println("Initializing debugger");
+        this.debugger.init(this);
+    }
+    public void unsetDebugger()
+    {
+    }
+    
     public String[] getExtensions()
     {
         String[][] extsArray = new String[loaders.size()][];
@@ -144,27 +124,44 @@ public class LCSystem extends Component
     
     public boolean load(String pathName)
     {
-        CodeLoader loader;
-        for(int i = 0; i < loaders.size(); i++)
-        {
-            loader = loaders.get(i);
-            if(loader.checkExtension(pathName))
-            {
-                return loader.load(pathName);
-            }
-        }
-        return false;
+        File file = new File(pathName);
+        return load(file);
     }
     public boolean load(File file)
     {
         CodeLoader loader;
+        if(!file.exists())
+        {
+            return false;
+        }
         for(int i = 0; i < loaders.size(); i++)
         {
             loader = loaders.get(i);
             if(loader.checkExtension(file.getAbsolutePath()))
             {
+                //Load a symbol table
+                String symPath = file.getAbsolutePath().substring(0, file.getAbsolutePath().lastIndexOf('.'))+".sym";
+                loadSymbolTable(symPath);
                 return loader.load(file);
             }
+        }
+        return false;
+    }
+    public boolean loadSymbolTable(String pathName)
+    {
+        return loadSymbolTable(new File(pathName));
+    }
+    public boolean loadSymbolTable(File file)
+    {
+        if(file.exists())
+        {
+            Symbol[] arr = Symbol.symbolsFromFile(file);
+            if(arr == null){return false;}
+            for(int i = 0; i < arr.length; i++)
+            {
+                addSymbol(arr[i]);
+            }
+            return true;
         }
         return false;
     }
@@ -214,6 +211,25 @@ public class LCSystem extends Component
         System.out.println(getName() + " overhead: " + overheadT + " nsec (" + overheadP + "%)");
     }
     
+    public String getProfile()
+    {
+        int overheadP = 100;
+        long overheadT = getAverageTime();
+        String output = getName() + ": " + getAverageTime() + " nsec";
+        output += "\n" +core.getName() + ": " + core.getAverageTime() + " nsec (" + core.getAverageTime() * 100 / getAverageTime()+ "%)";
+        overheadT -= core.getAverageTime();
+        overheadP -= core.getAverageTime() * 100 / getAverageTime();
+        for(int i = 0; i < devices.size(); ++i)
+        {
+            Device dev = devices.get(i);
+            output += "\n" + dev.getName() + ": " + dev.getAverageTime() + " nsec (" + dev.getAverageTime() * 100 / getAverageTime()+ "%)";
+            overheadT -= dev.getAverageTime();
+            overheadP -= dev.getAverageTime() * 100 / getAverageTime();
+        }
+        output += "\n" + getName() + " overhead: " + overheadT + " nsec (" + overheadP + "%)";
+        return output;
+    }
+    
     public void startRunning()
     {
         mcr.write2Bytes((short)(mcr.read2Bytes() | 0x8000));
@@ -231,8 +247,31 @@ public class LCSystem extends Component
         }
         return true;
     }
-    public boolean isCoreLoaded()
+    
+    public boolean hasCore()
     {
         return (core != null);
+    }
+    public boolean hasDebugger()
+    {
+        return (debugger != null);
+    }
+    
+    public long getRealFrequency()
+    {
+        long output;
+        long avgTime = this.getAverageTime();
+        output = avgTime!=0?1000000000 / avgTime:0;
+        return output;
+    }
+    
+    public Core getCore()
+    {
+        return core;
+    }
+    
+    public Debugger getDebugger()
+    {
+        return debugger;
     }
 }

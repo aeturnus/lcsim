@@ -58,8 +58,11 @@ public class Package
             URLClassLoader loader = new URLClassLoader(new URL[]{file.toURI().toURL()});
             loadAllClasses(loader,pkg);
             rawClass = loader.loadClass(className); //get my main class
+            System.out.println("Loaded raw class: " + rawClass.getCanonicalName());
             loader.close();
+            System.out.println("Closed loader");
             loaded = true;
+            System.out.println("Load of " + pkg.getName() + " is complete");
             return true;
         }
         catch(Exception e)
@@ -105,7 +108,9 @@ public class Package
         {
             try
             {
-                return rawClass.newInstance();
+                Object out = rawClass.newInstance();
+                System.out.println("Instantiated instance of "+rawClass.getCanonicalName());
+                return out;
             }
             catch(Exception e)
             {
@@ -132,13 +137,17 @@ public class Package
             String className;
             while(entries.hasMoreElements())
             {
-                className = getClassName(entries.nextElement());
+                ZipEntry nextElement = entries.nextElement();
+                //System.out.println("Next Entry in "+zip.getName() +": " + nextElement.getName());
+                System.out.println("Next Element: "+nextElement.getName());
+                className = getClassName(nextElement);
                 if(className != null)
                 {
                     loader.loadClass(className);
-                    System.out.println("Loaded class: " + className);
+                    System.out.println("Loaded class: " + className+"\n");
                 }
             }
+            System.out.println("Classes loaded from "+zip.getName());
         }
         catch (Exception e)
         {

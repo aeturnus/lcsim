@@ -110,7 +110,13 @@ public class DOM
     public static String getElement(Document doc, String name)
     {
         String output;
-        output = doc.getElementsByTagName(name).item(0).getTextContent();
+        NodeList list = doc.getElementsByTagName(name);
+        if(list == null)
+            return null;
+        Node node = list.item(0);
+        if(node == null)
+            return null;
+        output = node.getTextContent();
         return output;
     }
     public static String[] getElements(Document doc, String name)

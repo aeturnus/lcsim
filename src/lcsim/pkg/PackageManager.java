@@ -29,33 +29,34 @@ public class PackageManager
     private Vector<CorePackage> corePackages;
     private Vector<DevicePackage> devicePackages;
     private Vector<CodeLoaderPackage> codeloaderPackages;
+    private Vector<DebuggerPackage> debuggerPackages;
     
     private LCSystem sys;
     
     public PackageManager(LCSystem system)
     {
-        sys = system;
-        corePackages = new Vector<CorePackage>();
-        devicePackages = new Vector<DevicePackage>();
-        codeloaderPackages = new Vector<CodeLoaderPackage>();
+        construct(system);
     }
     
     public PackageManager(LCSystem system, String directoryPath)
     {
-        sys = system;
-        corePackages = new Vector<CorePackage>();
-        devicePackages = new Vector<DevicePackage>();
-        codeloaderPackages = new Vector<CodeLoaderPackage>();
+        construct(system);
         scanDirectory(directoryPath);
     }
     
     public PackageManager(LCSystem system, File directoryFile)
     {
+        construct(system);
+        scanDirectory(directoryFile);
+    }
+    
+    private void construct(LCSystem system)
+    {
         sys = system;
         corePackages = new Vector<CorePackage>();
         devicePackages = new Vector<DevicePackage>();
         codeloaderPackages = new Vector<CodeLoaderPackage>();
-        scanDirectory(directoryFile);
+        debuggerPackages = new Vector<DebuggerPackage>();
     }
     
     public void scanDirectory(String directoryPath)
@@ -86,48 +87,76 @@ public class PackageManager
                 codeloaderPackages.add(new CodeLoaderPackage(pkgFiles[i]));
                 System.out.println(codeloaderPackages.lastElement().toString()+"\n");
                 break;
+            case DEBUGGER:
+                debuggerPackages.add(new DebuggerPackage(pkgFiles[i]));
+                System.out.println(debuggerPackages.lastElement().toString()+"\n");
+                break;
             }
         }
     }
     
-    public boolean runLoadscript(String filePath)
+    public boolean loadXML(String filePath)
     {
-        return runLoadscript(new File(filePath));
+        return loadXML(new File(filePath));
     }
-    public boolean runLoadscript(File file)
+    public boolean loadXML(File file)
     {
         Document doc = DOM.newDocument(file);
         String coreFile = DOM.getElement(doc, "core");
         //Find the core package
-        for(int i = 0; i < corePackages.size(); i++)
+        if(coreFile != null)
         {
-            if(coreFile.equals(corePackages.get(i).getFileName()))
+            for(int i = 0; i < corePackages.size(); i++)
             {
-                loadCore(corePackages.get(i));
-                break;
+                if(coreFile.equals(corePackages.get(i).getFileName()))
+                {
+                    loadCore(corePackages.get(i));
+                    break;
+                }
             }
         }
         
         String[] deviceFiles = DOM.getElements(doc, "device");
-        for(int i = 0; i < devicePackages.size(); i++)
+        if(deviceFiles != null)
         {
-            for(int j = 0; j < deviceFiles.length; j++)
+            for(int i = 0; i < devicePackages.size(); i++)
             {
-                if(deviceFiles[j].equals(devicePackages.get(i).getFileName()))
+                for(int j = 0; j < deviceFiles.length; j++)
                 {
-                    loadDevice(devicePackages.get(i));
+                    if(deviceFiles[j].equals(devicePackages.get(i).getFileName()))
+                    {
+                        loadDevice(devicePackages.get(i));
+                    }
                 }
             }
         }
         
         String[] codeloaderFiles = DOM.getElements(doc, "codeloader");
-        for(int i = 0; i < codeloaderPackages.size(); i++)
+        if(codeloaderFiles != null)
         {
-            for(int j = 0; j < codeloaderFiles.length; j++)
+            for(int i = 0; i < codeloaderPackages.size(); i++)
             {
-                if(codeloaderFiles[j].equals(codeloaderPackages.get(i).getFileName()))
+                for(int j = 0; j < codeloaderFiles.length; j++)
                 {
-                    loadCodeLoader(codeloaderPackages.get(i));
+                    if(codeloaderFiles[j].equals(codeloaderPackages.get(i).getFileName()))
+                    {
+                        loadCodeLoader(codeloaderPackages.get(i));
+                    }
+                }
+            }
+        }
+        
+        String[] debuggerFiles = DOM.getElements(doc, "debugger");
+        if(debuggerFiles != null)
+        {
+            for(int i = 0; i < debuggerPackages.size(); i++)
+            {
+                for(int j = 0; j < debuggerFiles.length; j++)
+                {
+                    if(debuggerFiles[j].equals(debuggerPackages.get(i).getFileName()))
+                    {
+                        loadDebugger(debuggerPackages.get(i));
+                    }
                 }
             }
         }
@@ -149,6 +178,8 @@ public class PackageManager
             return loadDevice((DevicePackage)pkg);
         case CODELOADER:
             return loadCodeLoader((CodeLoaderPackage)pkg);
+        case DEBUGGER:
+            return loadDebugger((DebuggerPackage)pkg);
         }
         return true;
     }
@@ -170,7 +201,13 @@ public class PackageManager
         sys.addLoader(pkg.createObject());
         return true;
     }
-    
+    private boolean loadDebugger(DebuggerPackage pkg)
+    {
+        pkg.load();
+        System.out.println("Setting debugger...");
+        sys.setDebugger(pkg.createObject());
+        return true;
+    }
     
     
     public CorePackage[] getCores()
@@ -203,10 +240,21 @@ public class PackageManager
         return output;
     }
     
+    public DebuggerPackage[] getDebuggers()
+    {
+        DebuggerPackage[] output = new DebuggerPackage[debuggerPackages.size()];
+        for(int i= 0; i < output.length; i++)
+        {
+            output[i] = debuggerPackages.get(i);
+        }
+        return output;
+    }
+    
     public Package[] getPackages()
     {
         int size;
-        size = corePackages.size() + devicePackages.size() + codeloaderPackages.size();
+        size = corePackages.size() + devicePackages.size() + codeloaderPackages.size()
+             + debuggerPackages.size();
         Package[] output = new Package[size];
         int index = 0;
         for(int i = 0; i < corePackages.size(); i++,index++)
@@ -221,6 +269,11 @@ public class PackageManager
         {
             output[index] = codeloaderPackages.get(i);
         }
+        for(int i = 0; i < debuggerPackages.size(); i++,index++)
+        {
+            output[index] = debuggerPackages.get(i);
+        }
+        
         return output;
     }
     public Package[] getLoadedPackages()

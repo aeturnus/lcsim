@@ -283,6 +283,7 @@ public class Display extends JPanel
         }
         
         cells[curR][curC].setChar(c);
+        cells[curR][curC].repaint();
         if( (++curC) >= COLS)
         {
             curR++;

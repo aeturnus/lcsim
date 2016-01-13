@@ -18,6 +18,9 @@ import java.awt.event.MouseListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import lcsim.pkg.Package;
 
@@ -40,20 +43,30 @@ public class PackageManagerWindow extends JFrame
         //selectorListener = new ListSelectionListener(){public void valueChanged(ListSelectionEvent e){handleSelectorSelection(e);}};
         selector = new PackageSelector(this);
         selector.setVisible(true);
-        selector.setPreferredSize(new Dimension(200,400));
+        selector.setPreferredSize(new Dimension(200,800));
         display = new PackageDisplay(this);
         display.setPreferredSize(new Dimension(400,400));
         display.setVisible(true);
         
         selectorScroll = new JScrollPane();
+        selectorScroll.setPreferredSize(new Dimension(250,400));
         selectorScroll.setViewportView(selector);
+        selectorScroll.setWheelScrollingEnabled(true);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,selectorScroll,display);
         
         
         this.add(splitPane);
         
         this.pack();
-        this.setResizable(false);
+        this.setPreferredSize(this.getSize());
+        this.setResizable(true);
+        /*
+        this.addComponentListener(new ComponentAdapter(){
+            public void componentResized(ComponentEvent e) {
+                handleResize(e);
+            }
+        });
+        */
     }
     
     public void handleSelectorSelection()
@@ -71,6 +84,11 @@ public class PackageManagerWindow extends JFrame
         return pacman;
     }
     
-    
+    /*
+    public void handleResize(ComponentEvent e)
+    {
+        setSize(new Dimension(getPreferredSize().width,getHeight()));
+    }
+    */
 
 }

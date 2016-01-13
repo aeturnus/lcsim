@@ -41,6 +41,8 @@ public class MainFrame extends JFrame
     
     public MainFrame(LCSystem system, PackageManager packageManager) throws HeadlessException
     {
+        super();
+        System.out.println("MainFrame: super()");
         sys = system;
         pacman = packageManager;
         fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
@@ -49,6 +51,7 @@ public class MainFrame extends JFrame
                 System.exit(0);
             }
         });
+        System.out.println("MainFrame: Made a JFileChooser");
         // TODO Auto-generated constructor stub
         this.setTitle("Little Computer Simulator");
         
@@ -68,10 +71,15 @@ public class MainFrame extends JFrame
         
         //
         simMenu = new JMenu("Simulator");
-        item = new JMenuItem("Run");
+        item = new JMenuItem("Print Diagnostics");
         item.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                sys.startRunning();
+                String rawProfile = sys.getProfile();
+                String profile = rawProfile.replaceAll("\n", "<br>");
+                System.out.println(rawProfile);
+                sys.printProfile();
+                DialogText profileWindow = new DialogText("System Profile", profile);
+                profileWindow.setVisible(true);
             }
         });
         simMenu.add(item);
@@ -91,14 +99,17 @@ public class MainFrame extends JFrame
         menuBar.add(packageMenu);
         
         this.setJMenuBar(menuBar);
+        System.out.println("MainFrame: Added menu bar and items");
         
         this.pack();
         this.setSize(400,400);
+        
+        System.out.println("MainFrame: Main window constructed!");
     }
     
     public void handleCodeLoad()
     {
-        if(!sys.isCoreLoaded())
+        if(!sys.hasCore())
         {
             DialogText dialog = new DialogText("Error","No core loaded!");
             dialog.setVisible(true);
