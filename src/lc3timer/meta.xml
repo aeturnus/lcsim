@@ -1,0 +1,13 @@
+<package type="device">
+    <name>LC3 Timer</name>
+    <author>&lt;a href="www.brandontrinhnguyen.com"&gt;Brandon Nguyen&lt;/a&gt;</author>
+    <version>1.0</version>
+    <class>lc3timer.Timer</class>
+    <description>A repeating timer that interrupts.</description>
+    <!-- ioRegister and interruptVector elements are only for devices -->
+    <device>
+        <io_register>0xFE08</io_register>
+        <io_register>0xFE0A</io_register>
+        <interrupt_vector>0x00</interrupt_vector>
+    </device>
+</package>
