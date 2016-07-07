@@ -38,7 +38,7 @@ public class DevicePackage extends Package
         interruptVectors = new int[ivNodes.getLength()];
         for(int i = 0; i < interruptVectors.length; i++)
         {
-            interruptVectors[i] = Integer.decode(ioNodes.item(i).getTextContent());
+            interruptVectors[i] = Integer.decode(ivNodes.item(i).getTextContent());
         }
     }
     
