@@ -15,6 +15,8 @@ import lcsimlib.Device;
 import lcsimlib.LCSystem;
 import lcsimlib.Register;
 
+// TODO: ANSI escape support
+
 public class Console extends Device 
 {
     //Configurable constants

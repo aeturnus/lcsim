@@ -133,6 +133,7 @@ public class DOM
     
     private static void handleException(Exception e)
     {
+        e.printStackTrace();
     }
 
 }

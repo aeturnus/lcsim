@@ -20,7 +20,7 @@ public class Debugger extends lcsimlib.Debugger
     @Override
     public void init(LCSystem system)
     {
-        System.out.println("INITIALIZING TOOT TOOT!");
+        //System.out.println("INITIALIZING TOOT TOOT!");
         // TODO Auto-generated method stub
         sys = system;
         

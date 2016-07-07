@@ -1,30 +1,11 @@
 package lcsim;
 
-import javax.swing.*;
-import java.awt.*;
-
-import java.net.URLClassLoader;
-import java.net.URL;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipEntry;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-
+import javax.swing.UIManager;
+import lcsim.pkg.*;
+import lcsim.gui.*;
 import lcsimlib.*;
-
+import lcsimlib.gui.*;
+import org.w3c.dom.Document;
 //This serves as the main program
 
 public class LCSim 
@@ -45,22 +26,48 @@ public class LCSim
         }
         System.out.printf("Little Computer Simulator v%s\n",VERSION);
         //We need to lookup classes that implement our interfaces
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
         try
         {
-            //URLClassLoader URLloader = new URLClassLoader(urls);
-            
-            LCSystem sys = new LCSystem();
             System.out.println("Working dir = " + System.getProperty("user.dir"));
+            LCSystem sys = new LCSystem();
+            PackageManager pacman = new PackageManager(sys);
             
-            Test.testMain(sys);
-            //Test.testGUI(sys);
-            //Test.testLoadScript(sys);
-            //Test.testPackageManagerGui(sys);
-            //Test.testPackageManagerTerm(sys);
-            //Test.testPackageManager(sys);
-            //Test.testPackage(sys);
+            //Create a MainFrame to show that stuff is working
+            MainFrame window = new MainFrame(sys,pacman);
+            window.setVisible(true);
+            pacman.setMainFrame(window);
             
+            Document initXML = DOM.newDocument("init.xml");
+            System.out.println("Loaded init.xml");
+            //Scan package directories
+            String[] packageDirs = DOM.getElements(initXML, "package-directory");
+            for(int i = 0; i < packageDirs.length; i++)
+            {
+                pacman.scanDirectory(packageDirs[i]);
+                System.out.println("Scanned "+packageDirs[i]+" for packages");
+            }
+            System.out.println("Scanned package directories");
+            //Run package load files
+            String[] loadFiles = DOM.getElements(initXML, "package-load");
+            for(int i = 0; i < loadFiles.length; i++)
+            {
+                pacman.loadXML(loadFiles[i]);
+                System.out.println("Ran load configuration "+loadFiles[i]);
+            }
+            System.out.println("Ran all load configurations");
+            
+            //Wait for a core to be loaded
+            while(!sys.hasCore())
+            {
+                Thread.sleep(100);
+            }
+            //Wait for a debugger to be loaded
+            while(!sys.hasDebugger())
+            {
+                Thread.sleep(100);
+            }
+            //Once a debugger has been loaded
+            System.out.println("******Main has ended. Child threads are doing work now");
         }
         catch(Exception e)
         {

@@ -1,6 +1,7 @@
 package lcsim.gui;
 
 import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowListener;
@@ -17,8 +18,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import java.awt.event.KeyEvent;
 
 import java.io.File;
+
+import java.awt.Image;
+import javax.imageio.ImageIO;
 
 import lcsimlib.*;
 import lcsim.pkg.*;
@@ -31,7 +38,7 @@ public class MainFrame extends JFrame
 {
     JMenuBar menuBar;
     JMenu fileMenu;
-    JMenu simMenu;
+    JMenu sysMenu;
     JMenu packageMenu;
     
     LCSystem sys;
@@ -39,12 +46,22 @@ public class MainFrame extends JFrame
     
     JFileChooser fileChooser;
     
+    JPanel debuggerPanel;
+    
     public MainFrame(LCSystem system, PackageManager packageManager) throws HeadlessException
     {
         super();
         System.out.println("MainFrame: super()");
+        try
+        {
+            Image icon = ImageIO.read(MainFrame.class.getResource("/lcsim/gui/LCSimIcon256.png"));
+            this.setIconImage(icon);
+        }
+        catch (Exception e){e.printStackTrace();}
+        //this.setIconImage(Toolkit.getDefaultToolkit().getImage("LCSimIcon256.png"));
         sys = system;
         pacman = packageManager;
+        debuggerPanel = null;
         fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
         this.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
@@ -66,11 +83,12 @@ public class MainFrame extends JFrame
                 handleCodeLoad();
             }
         });
+        fileMenu.setMnemonic(KeyEvent.VK_P);
         fileMenu.add(item);
         menuBar.add(fileMenu);
         
         //
-        simMenu = new JMenu("Simulator");
+        sysMenu = new JMenu("System");
         item = new JMenuItem("Print Diagnostics");
         item.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -82,8 +100,10 @@ public class MainFrame extends JFrame
                 profileWindow.setVisible(true);
             }
         });
-        simMenu.add(item);
-        menuBar.add(simMenu);
+        sysMenu.add(item);
+        sysMenu.add(new JSeparator());
+        
+        menuBar.add(sysMenu);
         
         //
         packageMenu = new JMenu("Package");
@@ -135,5 +155,20 @@ public class MainFrame extends JFrame
         {
             sys.load(fileChooser.getSelectedFile());
         }
+    }
+    
+    public void setDebuggerPanel(JPanel panel)
+    {
+        if(debuggerPanel != null)
+        {
+            this.remove(debuggerPanel);
+            //debuggerPanel = null;   //Doesn't actually do anything
+        }
+        debuggerPanel = panel;
+        this.add(debuggerPanel);
+        this.pack();
+        this.getContentPane().validate();
+        this.getContentPane().repaint();
+        System.out.println("Debugger panel set");
     }
 }

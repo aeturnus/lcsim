@@ -2,8 +2,8 @@ package lcsimlib;
 
 public class InterruptLine 
 {
-    private boolean isSet;
-    private int PL;
+    private boolean isSet;  // is the line set
+    private int PL;	        // priority level
     
     public InterruptLine()
     {

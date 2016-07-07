@@ -10,6 +10,8 @@ import java.awt.FontMetrics;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import lcsimlib.gui.AppFont;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Toolkit;
@@ -43,7 +45,8 @@ public class Display extends JPanel
         this.removeAll();
         
         //cellFont = new Font("Courier New",Font.PLAIN,12);
-        cellFont = new Font("Monospaced",Font.PLAIN,12);
+        //cellFont = new Font("Monospaced",Font.PLAIN,12);
+        cellFont = AppFont.getMonoFont();
         FontMetrics metrics = this.getFontMetrics(cellFont);
         cellWidth = metrics.charWidth(' ');
         cellHeight = metrics.getMaxAscent()+metrics.getMaxDescent();

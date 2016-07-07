@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 
 import lcsimlib.*;
+import lcsim.gui.*;
 
 public class PackageManager
 {
@@ -29,6 +30,7 @@ public class PackageManager
     private Vector<DebuggerPackage> debuggerPackages;
     
     private LCSystem sys;
+    private MainFrame window;
     
     public PackageManager(LCSystem system)
     {
@@ -56,6 +58,11 @@ public class PackageManager
         debuggerPackages = new Vector<DebuggerPackage>();
     }
     
+    public void setMainFrame(MainFrame frame)
+    {
+        window = frame;
+    }
+    
     public void scanDirectory(String directoryPath)
     {
         File dirFile = new File(directoryPath);
@@ -64,6 +71,8 @@ public class PackageManager
     
     public void scanDirectory(File dirFile)
     {
+        if(!dirFile.exists())
+            return;
         File[] pkgFiles = dirFile.listFiles(new FilenameFilter(){
             public boolean accept(File dir, String filename) { return filename.endsWith(".pkg");}
         });
@@ -98,6 +107,9 @@ public class PackageManager
     }
     public boolean loadXML(File file)
     {
+        if(!file.exists())
+            return false;
+        
         Document doc = DOM.newDocument(file);
         String coreFile = DOM.getElement(doc, "core");
         //Find the core package
@@ -203,6 +215,7 @@ public class PackageManager
         pkg.load();
         System.out.println("Setting debugger...");
         sys.setDebugger(pkg.createObject());
+        window.setDebuggerPanel(sys.getDebugger().getGUI());
         return true;
     }
     

@@ -27,6 +27,7 @@ public class DebugPanel extends JPanel
     Debugger debug;
     
     DebuggerToolbar toolBar;
+    RegisterTable regTable;
     JScrollPane memScroll;
     MemoryTable memTable;
     
@@ -40,12 +41,18 @@ public class DebugPanel extends JPanel
     {
         sys = system;
         debug = debugger;
+        sys.stopRunning();
         
         this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
         
         toolBar = new DebuggerToolbar();
-        toolBar.setAlignmentX(LEFT_ALIGNMENT);
+        //toolBar.setAlignmentX(LEFT_ALIGNMENT);
+        //toolBar.setAlignmentX(RIGHT_ALIGNMENT);
+        toolBar.setAlignmentX(CENTER_ALIGNMENT);
         this.add(toolBar);
+        
+        regTable = new RegisterTable(system, debug);
+        this.add(regTable);
         
         memScroll = new JScrollPane();
         memTable = new MemoryTable(system, debug);
@@ -226,6 +233,7 @@ public class DebugPanel extends JPanel
         body += "<br>" + NumberFormat.getIntegerInstance().format(sys.getAverageTime()) + " nsec per cycle";
         body += "<br>" + NumberFormat.getIntegerInstance().format(sys.getRealFrequency()) + " Hz real-time";
         String htmlClose = "</html>";
+        regTable.repaint();
         memScroll.repaint();
     }
     

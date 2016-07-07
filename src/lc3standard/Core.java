@@ -296,12 +296,17 @@ public class Core extends lcsimlib.Core
     
     private void checkInterrupts()
     {
+        InterruptLine intLine;
         for(int i = 0; i < intLines.size(); ++i)
         {
             //If line is triggered, do something
-            if(intLines.get(i).check())
+            intLine = intLines.get(i);
+            if(intLine.check())
             {
                 //Initiate interrupt
+                fireInterrupt(intLine,intVector.get(i));
+                intLine.clr();
+                //System.out.println("Interrupt fired");
             }
         }
     }
@@ -321,7 +326,7 @@ public class Core extends lcsimlib.Core
         writeMem(readReg(6),readReg(PSR));
         //Push PC
         writeReg(6,(short)(readReg(6)-1));  //dec SP
-        writeMem(readReg(6),readReg(PC));
+        writeMem(readReg(6),(short)(readReg(PC)-1));    //pc by 1: we need that interrupted instruction
 
         writeReg(PC,readMem((short)vector));    //get the exception address
     }

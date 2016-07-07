@@ -34,6 +34,9 @@ public class Disassembler
         //LDR
         case 0b0110:
             return ldrstr(inst, "LDR   ");
+        //LEA
+        case 0b1110:
+            return lea(inst,sys,address);
         //NOT
         case 0b1001:
             return not(inst);
@@ -125,7 +128,7 @@ public class Disassembler
             }
             return ("JSR   "+sym.getName());
         }
-        return "JSRR  "+Bits.isoz(inst, 6, 8);
+        return "JSRR  R"+Bits.isoz(inst, 6, 8);
     }
     private static String ldldiststi(int inst, String opcode, LCSystem sys, int pc)
     {
@@ -144,6 +147,18 @@ public class Disassembler
         int base = Bits.isoz(inst, 6, 8);
         int offset = Bits.isos(inst, 0, 5);
         return opcode+"R"+reg+", R"+base+", #"+offset;
+    }
+    private static String lea(int inst, LCSystem sys, int pc)
+    {
+        int reg= Bits.isoz(inst, 9, 11);
+        String p1= "LEA   R"+reg;
+        int dest = pc + 1 + Bits.isos(inst, 0, 8);
+        Symbol sym = sys.getSymbol(dest);
+        if(sym == null)
+        {
+            return p1+String.format(", x%04X", dest);
+        }
+        return p1+", "+sym.getName();
     }
     private static String not(int inst)
     {

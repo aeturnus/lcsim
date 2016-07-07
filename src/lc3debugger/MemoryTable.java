@@ -31,7 +31,6 @@ public class MemoryTable extends JTable
         for(int i = 1; i < 6; i++)
         {
             this.getColumnModel().getColumn(i).setCellRenderer(new StringRenderer());
-     
         }
         //this.getTableHeader().setVisible(false);
         this.setTableHeader(null);
@@ -139,27 +138,6 @@ public class MemoryTable extends JTable
                 //setText(">");
                 setText(" ");
                 break;
-            }
-        }
-    }
-    
-    private class StringRenderer extends DefaultTableCellRenderer 
-    {
-        public StringRenderer() 
-        {
-            super();
-        }
-        public void setValue(Object value)
-        {
-            this.setFont(AppFont.getMonoFont());
-            String val = (String)value;
-            if(val == null)
-            {
-                setText("");
-            }
-            else
-            {
-                setText(val);
             }
         }
     }
