@@ -8,6 +8,7 @@
     <device>
         <io_register>0xFE08</io_register>
         <io_register>0xFE0A</io_register>
-        <interrupt_vector>0x00</interrupt_vector>
+        <io_register>0xFE0C</io_register><interrupt_vector>0x00</interrupt_vector>
+        
     </device>
 </package>
