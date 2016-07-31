@@ -39,26 +39,23 @@ public class Register
     }
     
     //No size checking: I'm trusting the programmer
-    public void write1Bytes(byte in)
+    public void set1Bytes(byte in)
     {
         data[0] = in;
-        w = true;
     }
-    public void write2Bytes(short in)
+    public void set2Bytes(short in)
     {
         data[0] = (byte)in;
         data[1] = (byte)( (in >>> 8) & 0xFF );
-        w = true;
     }
-    public void write4Bytes(int in)
+    public void set4Bytes(int in)
     {
         data[0] = (byte)in;
         data[1] = (byte)( (in >>> 8) & 0xFF );
         data[2] = (byte)( (in >>> 16) & 0xFF );
         data[3] = (byte)( (in >>> 24) & 0xFF );
-        w = true;
     }
-    public void write8Bytes(long in)
+    public void set8Bytes(long in)
     {
         data[0] = (byte)in;
         data[1] = (byte)( (in >>> 8) & 0xFF );
@@ -68,6 +65,25 @@ public class Register
         data[5] = (byte)( (in >>> 40) & 0xFF );
         data[6] = (byte)( (in >>> 48) & 0xFF );
         data[7] = (byte)( (in >>> 56) & 0xFF );
+    }
+    public void write1Bytes(byte in)
+    {
+        set1Bytes(in);
+        w = true;
+    }
+    public void write2Bytes(short in)
+    {
+        set2Bytes(in);
+        w = true;
+    }
+    public void write4Bytes(int in)
+    {
+        set4Bytes(in);
+        w = true;
+    }
+    public void write8Bytes(long in)
+    {
+        set8Bytes(in);
         w = true;
     }
     
