@@ -328,7 +328,7 @@ public class Core extends lcsimlib.Core
         writeReg(6,(short)(readReg(6)-1));  //dec SP
         writeMem(readReg(6),(short)(readReg(PC)-1));    //pc by 1: we need that interrupted instruction
 
-        writeReg(PC,readMem((short)vector));    //get the exception address
+        writeReg(PC,readMem((short) (vector | 0x100)));    //get the exception address
     }
     private void returnInterrupt()
     {
