@@ -30,6 +30,7 @@ public class DebugPanel extends JPanel
     RegisterTable regTable;
     JScrollPane memScroll;
     MemoryTable memTable;
+    ChangeFrame changeFrame;
     
     Thread periodicThread;
     Thread runningThread;
@@ -46,13 +47,21 @@ public class DebugPanel extends JPanel
         this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
         
         toolBar = new DebuggerToolbar();
-        //toolBar.setAlignmentX(LEFT_ALIGNMENT);
+        toolBar.setAlignmentX(LEFT_ALIGNMENT);
         //toolBar.setAlignmentX(RIGHT_ALIGNMENT);
-        toolBar.setAlignmentX(CENTER_ALIGNMENT);
+        //toolBar.setAlignmentX(CENTER_ALIGNMENT);
+        
+        changeFrame = new ChangeFrame(this.sys.getCore());
+        
         this.add(toolBar);
         
         regTable = new RegisterTable(system, debug);
         this.add(regTable);
+        regTable.addMouseListener(new MouseAdapter(){
+            public void mouseClicked(MouseEvent e){
+                handleRegSelect(e);
+            }
+        });
         
         memScroll = new JScrollPane();
         memTable = new MemoryTable(system, debug);
@@ -228,11 +237,13 @@ public class DebugPanel extends JPanel
     
     private void updateElements()
     {
+        /*
         String htmlOpen = "<html>";
         String body = NumberFormat.getIntegerInstance().format(sys.getCycles()) + " cycles executed";
         body += "<br>" + NumberFormat.getIntegerInstance().format(sys.getAverageTime()) + " nsec per cycle";
         body += "<br>" + NumberFormat.getIntegerInstance().format(sys.getRealFrequency()) + " Hz real-time";
         String htmlClose = "</html>";
+        */
         regTable.repaint();
         memScroll.repaint();
     }
@@ -267,6 +278,22 @@ public class DebugPanel extends JPanel
             {
                 debug.memBP[row].toggle();
             }
+            else
+            {
+                changeFrame.open(String.format("x%04X", row));
+            }
+            updateElements();
+        }
+    }
+    
+    private void handleRegSelect(MouseEvent e)
+    {
+        if(e.getClickCount() == 2)
+        {
+            int row = regTable.getSelectedRow();
+            int col = regTable.getSelectedColumn();
+            changeFrame.open(regTable.getRegisterId(row, col).toUpperCase());
+            
             updateElements();
         }
     }

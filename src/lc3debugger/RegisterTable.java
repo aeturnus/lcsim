@@ -1,16 +1,16 @@
 package lc3debugger;
 
-import java.util.Vector;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.DefaultListSelectionModel;
+import java.awt.event.MouseEvent;
 
-import lcsimlib.*;
-import lcsimlib.gui.AppFont;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
+
+import lcsimlib.Core;
+import lcsimlib.LCSystem;
+import lcsimlib.RegEnum;
+import lcsimlib.Register;
 
 public class RegisterTable extends JTable
 {
@@ -36,6 +36,54 @@ public class RegisterTable extends JTable
         this.setShowGrid(false);
         this.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
     }
+    public String getRegisterId(int row, int col)
+    {
+        Core core = sys.getCore();
+        switch(row)
+        {
+        case 0:
+            switch(col)
+            {
+            case 0:
+                return "r0";
+            case 1:
+                return "r4";
+            case 2:
+                return "pc";
+            }
+        case 1:
+            switch(col)
+            {
+            case 0:
+                return "r1";
+            case 1:
+                return "r5";
+            case 2:
+                return "ir";
+            }
+        case 2:
+            switch(col)
+            {
+            case 0:
+                return "r2";
+            case 1:
+                return "r6";
+            case 2:
+                return "psr";
+            }
+        case 3:
+            switch(col)
+            {
+            case 0:
+                return "r3";
+            case 1:
+                return "r7";
+            case 2:
+                return "cc";
+            }
+        }
+        return null;
+    }
     
     private class RegisterModel extends AbstractTableModel
     {
@@ -44,6 +92,9 @@ public class RegisterTable extends JTable
         }
         public int getRowCount() {return 4;}
         public int getColumnCount() {return 3;}
+        
+        
+        
         public Object getValueAt(int row, int col)
         {
             Core core = sys.getCore();
