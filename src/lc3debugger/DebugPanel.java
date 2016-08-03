@@ -18,7 +18,6 @@ import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 
 import lcsimlib.*;
-import lcsimlib.gui.DebuggerToolbar;
 import lcsimlib.gui.RegisterLabel;
 
 public class DebugPanel extends JPanel
@@ -47,9 +46,6 @@ public class DebugPanel extends JPanel
         this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
         
         toolBar = new DebuggerToolbar();
-        toolBar.setAlignmentX(LEFT_ALIGNMENT);
-        //toolBar.setAlignmentX(RIGHT_ALIGNMENT);
-        //toolBar.setAlignmentX(CENTER_ALIGNMENT);
         
         changeFrame = new ChangeFrame(this.sys.getCore());
         
@@ -76,8 +72,8 @@ public class DebugPanel extends JPanel
         
         
         int pc = sys.getCore().getRegister(RegEnum.PC).read2Bytes() & 0xFFFF;
-        memTable.setRowSelectionInterval(pc , pc );
-        memTable.scrollRectToVisible(memTable.getCellRect(pc, 0, true));
+        gotoAddr(pc);
+        toolBar.getGotoField().initLocation( String.format("x%04X", pc) );
         
         toolBar.getButtonRun().addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -100,6 +96,32 @@ public class DebugPanel extends JPanel
                 updateElements();
             }
         });
+        
+        toolBar.getGotoField().getButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                GotoField gotoField = toolBar.getGotoField();
+                String loc = gotoField.getFieldText();
+                Boolean[] status = {false};
+                int addr = LC3Info.stringToInt(loc, status);
+                if(status[0])
+                {
+                    if(LC3Info.validateAddress(addr))
+                    {
+                        gotoAddr(addr);
+                        gotoField.addLocation(loc);
+                    }
+                    else
+                    {
+                        gotoField.setFieldText(loc + "is not in the addresss space!");
+                    }
+                }
+                else
+                {
+                    gotoField.setFieldText(loc + " is an invalid location!");
+                }
+            }
+        });
+        
         //Create thread to handle running
         runningThread = new Thread(new Runnable(){
             public void run(){
@@ -266,6 +288,12 @@ public class DebugPanel extends JPanel
             toolBar.getButtonStepIn().setEnabled(true);
             toolBar.getButtonStepOut().setEnabled(true);
         }
+    }
+    
+    private void gotoAddr(int addr)
+    {
+        memTable.setRowSelectionInterval(addr, addr);
+        memTable.scrollRectToVisible(memTable.getCellRect(addr, 0, true));
     }
     
     private void handleMemSelect(MouseEvent e)

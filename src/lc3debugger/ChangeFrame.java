@@ -1,14 +1,18 @@
 package lc3debugger;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -24,8 +28,18 @@ public class ChangeFrame
     private Vector<String> locs;
     private Core core;
     private JDialog frame;
+    
+    private JPanel mainPanel;
+    
+    private JLabel helpLabel;
+    
+    private JPanel locPanel;
+    private JLabel locLabel;
     private JComboBox locBox;
-    private JTextField valueField;
+    
+    private JPanel valPanel;
+    private JLabel valLabel;
+    private JTextField valField;
     
     private JPanel buttonBar;
     private JButton okButton;
@@ -37,7 +51,23 @@ public class ChangeFrame
         frame = new JDialog();
         frame.setTitle("Set value...");
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+        frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
+       
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        
+        helpLabel = new JLabel("Provide a location and value to set it to");
+        helpLabel.setAlignmentX( JLabel.CENTER_ALIGNMENT );
+        helpLabel.setVisible(true);
+        mainPanel.add(helpLabel);
+        
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        
+        locPanel = new JPanel();
+        locPanel.setLayout( new BoxLayout(locPanel, BoxLayout.X_AXIS) );
+        
+        locLabel = new JLabel("Location: ");
+        locPanel.add(locLabel);
         
         this.core = core;
         locs = new Vector<String>(startingLocs.length);
@@ -48,15 +78,29 @@ public class ChangeFrame
         locBox = new JComboBox(locs);
         locBox.setVisible(true);
         locBox.setEditable(true);
-        frame.add(locBox);
+        locPanel.add(locBox);
+        mainPanel.add(locPanel);
         
-        valueField = new JTextField();
-        valueField.setVisible(true);
-        frame.add(valueField);
+        
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        
+        valPanel = new JPanel();
+        valPanel.setLayout( new BoxLayout(valPanel, BoxLayout.X_AXIS) );
+        
+        valLabel = new JLabel("Value: ");
+        valPanel.add(valLabel);
+        
+        valField = new JTextField();
+        valField.setVisible(true);
+        valPanel.add(valField);
+        
+        mainPanel.add(valPanel);
+        
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         
         buttonBar = new JPanel();
         buttonBar.setLayout(new BoxLayout(buttonBar, BoxLayout.X_AXIS));
-        frame.add(buttonBar);
+        mainPanel.add(buttonBar);
         
         okButton = new JButton("OK");
         okButton.setVisible(true);
@@ -93,22 +137,27 @@ public class ChangeFrame
         });
         buttonBar.add(applyButton);
         
-        frame.pack();
+        frame.add(Box.createRigidArea(new Dimension(5, 0)));
+        frame.add(mainPanel);
+        frame.add(Box.createRigidArea(new Dimension(5, 0)));
         
+        frame.pack();
+        frame.setResizable(false);
+        frame.setVisible(false);
     }
     
     public void open(String identifier)
     {
         frame.setVisible(true);
         locBox.setSelectedItem(identifier);
-        valueField.setText(getValue(identifier));
+        valField.setText(getValue(identifier));
     }
     
     private boolean applyValue()
     {
         Boolean[] valStatus = {false};
         Boolean[] idStatus = {false};
-        setValue( (String) locBox.getSelectedItem(), valueField.getText(), idStatus, valStatus);
+        setValue( (String) locBox.getSelectedItem(), valField.getText(), idStatus, valStatus);
         if( !valStatus[0] || !idStatus[0] )
         {
             return false;
